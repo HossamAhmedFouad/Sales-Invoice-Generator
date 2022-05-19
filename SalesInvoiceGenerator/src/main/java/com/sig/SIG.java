@@ -1,8 +1,8 @@
 //EGY FWD Front End Testing Nano Degree Program - Project 1 - 2022
 //Program Name : SIG.java
-//Last Modification Date: 13/05/2022
+//Last Modification Date: 19/05/2022
 //Author: Hossam Ahmed Fouad
-//Version: 1.0
+//Version: 2.0
 //Purpose: Generates Invoices For Sales
 
 package com.sig;
@@ -22,7 +22,7 @@ public class SIG
         GUI gui = new GUI();
         gui.setVisible(true);
         //Control
-        ActionsHandler handler = new ActionsHandler(fileOperations,gui);
+        ActionsHandler handler = new ActionsHandler(fileOperations, gui);
 
     }
 }
