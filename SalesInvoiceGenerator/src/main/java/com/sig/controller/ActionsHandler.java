@@ -1,8 +1,8 @@
 //EGY FWD - Front End Testing Nano Degree Program - Project 1 May Cohort - 2022
 //Program Name : ActionsHandler.java
-//Last Modification Date: 19/05/2022
+//Last Modification Date: 30/05/2022
 //Author: Hossam Ahmed Fouad
-//Version: 2.0
+//Version: 3.0
 //Purpose: Serves The Controller Part In The Model View Control (MVC) Design for SIG
 
 package com.sig.controller;
@@ -209,7 +209,7 @@ public class ActionsHandler {
                         if (myModel.getValueAt(i, 1).equals("") || myModel.getValueAt(i, 2).equals("") || myModel.getValueAt(i, 3).equals("") ||myModel.getValueAt(i, 0)==null||myModel.getValueAt(i, 1)==null||myModel.getValueAt(i, 2)==null) {
                             myModel.removeRow(i);
                             invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().remove(i);
-                            if (i == 0) {
+                            if (i == 0 && invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().size() == 0) {
                                 invoiceHeaderArrayList.remove(gui.getInvoicesHeadersTable().getSelectedRow());
                                 DefaultTableModel myModel2 = gui.getInvoicesTableModel();
                                 myModel2.removeRow(gui.getInvoicesHeadersTable().getSelectedRow());
@@ -228,12 +228,40 @@ public class ActionsHandler {
                         }
                     }
                     if (!error) {
-                        gui.getInvoicesHeadersTable().setValueAt(sum, gui.getInvoicesHeadersTable().getSelectedRow(), 3);
                         gui.setInvoiceItemsModel(myModel);
                     }
+                    gui.getInvoicesHeadersTable().setValueAt(sum, gui.getInvoicesHeadersTable().getSelectedRow(), 3);
+                    sum = 0;
+                    error = false;
+                    for (int i = 0; i < invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().size(); i++) {
+                        if (myModel.getValueAt(i, 1).equals("") || myModel.getValueAt(i, 2).equals("") || myModel.getValueAt(i, 3).equals("") ||myModel.getValueAt(i, 0)==null||myModel.getValueAt(i, 1)==null||myModel.getValueAt(i, 2)==null) {
+                            myModel.removeRow(i);
+                            invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().remove(i);
+                            if (i == 0 && invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().size() == 0) {
+                                invoiceHeaderArrayList.remove(gui.getInvoicesHeadersTable().getSelectedRow());
+                                DefaultTableModel myModel2 = gui.getInvoicesTableModel();
+                                myModel2.removeRow(gui.getInvoicesHeadersTable().getSelectedRow());
+                                gui.setInvoicesTableModel(myModel2);
+                                error = true;
+                                break;
+                            }
+                        } else {
+                            //Updating Values Of Cells In Invoice Items Table
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceNumber(), i, 0);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getItemName(), i, 1);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getItemPrice(), i, 2);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getCount(), i, 3);
+                            myModel.setValueAt(Double.parseDouble(myModel.getValueAt(i, 2).toString()) * Double.parseDouble(myModel.getValueAt(i, 3).toString()), i, 4);
+                            sum += Double.parseDouble(myModel.getValueAt(i, 4).toString());
+                        }
+                    }
+                    gui.setInvoiceItemsModel(myModel);
+
+                    gui.getInvoicesHeadersTable().setValueAt(sum, gui.getInvoicesHeadersTable().getSelectedRow(), 3);
                     //Setting The Duplicate Array List To Current New One, As Saving The Status Of Project Denies Going Back.
                     invoiceHeaderArrayListDuplicate.clear();
                     invoiceHeaderArrayListDuplicate.addAll(invoiceHeaderArrayList);
+
                 }else{
                     JOptionPane.showMessageDialog(null, "Please Enter a valid date format!", "Error", 0);
                 }
@@ -286,33 +314,105 @@ public class ActionsHandler {
 
                 //Clicking On Save File From File Menu - "saveFile" command
             } else if (e.getActionCommand().equals("saveFile")) {
-                //A Message Dialog To Inform The User To Choose Invoices Header File First To Save To
-                JOptionPane.showMessageDialog(null, "Please Choose Invoices Header File To Save", "Notice", 1);
-                JFileChooser fileChooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Comma Separated Files", "csv");
-                fileChooser.setFileFilter(filter);
-                String path1 = "";
-                String path2 = "";
-
-                //Prompt user to select file
-                int choice = fileChooser.showSaveDialog(null);
-                if (choice == JFileChooser.APPROVE_OPTION) {
-                    //Store invoice header file to path1
-                    path1 = fileChooser.getSelectedFile().getAbsolutePath();
-
-                    //A Message Dialog To Inform The User To Choose Invoices Lines File To Save To
-                    JOptionPane.showMessageDialog(null, "Please Choose Invoices Lines File To Save", "Notice", 1);
-                    fileChooser = new JFileChooser();
-                    fileChooser.setFileFilter(filter);
-                    choice = fileChooser.showSaveDialog(null);
-                    if (choice == JFileChooser.APPROVE_OPTION) {
-                        path2 = fileChooser.getSelectedFile().getAbsolutePath();
-                        if (invoiceHeaderArrayList != null) {
-                            fileOperations.writeFile(invoiceHeaderArrayList, path1, path2);
-                        }
-
-                    }
+                String date = gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(),1).toString();
+                SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+                boolean correctDate;
+                try {
+                    format.parse(date);
+                    correctDate = true;
                 }
+                catch(ParseException parseException){
+                    System.out.println("Invalid Date Format");
+                    correctDate = false;
+                }
+                if(correctDate) {
+                    invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).setInvoiceDate(gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 1).toString());
+                    invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).setCustomerName(gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 2).toString());
+
+                    //A lines array list that will hold invoice lines for head invoice header
+                    ArrayList<InvoiceLine> lines = new ArrayList<>(10);
+
+                    //Reading every row in invoice items table to check for any modifications to overwrite.
+                    for (int j = 0; j < gui.getInvoiceItemsTable().getRowCount(); j++) {
+                        InvoiceLine line = new InvoiceLine();
+                        line.setItemName(gui.getInvoiceItemsTable().getValueAt(j, 1).toString());
+                        line.setItemPrice(gui.getInvoiceItemsTable().getValueAt(j, 2).toString());
+                        line.setCount(gui.getInvoiceItemsTable().getValueAt(j, 3).toString());
+                        lines.add(line);
+                    }
+                    //Setting the invoice header's invoice lines to newly modified lines.
+                    invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).setInvoiceLines(lines);
+
+                    //Getting invoice items model to modify rows in it
+                    DefaultTableModel myModel = gui.getInvoiceItemsModel();
+                    double sum = 0;
+                    boolean error = false;
+
+                    //Removing empty rows with no data on clicking the save button
+                    for (int i = 0; i < invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().size(); i++) {
+                        if (myModel.getValueAt(i, 1).equals("") || myModel.getValueAt(i, 2).equals("") || myModel.getValueAt(i, 3).equals("") ||myModel.getValueAt(i, 0)==null||myModel.getValueAt(i, 1)==null||myModel.getValueAt(i, 2)==null) {
+                            myModel.removeRow(i);
+                            invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().remove(i);
+                            if (i == 0) {
+                                invoiceHeaderArrayList.remove(gui.getInvoicesHeadersTable().getSelectedRow());
+                                DefaultTableModel myModel2 = gui.getInvoicesTableModel();
+                                myModel2.removeRow(gui.getInvoicesHeadersTable().getSelectedRow());
+                                gui.setInvoicesTableModel(myModel2);
+                                error = true;
+                                break;
+                            }
+                        } else {
+                            //Updating Values Of Cells In Invoice Items Table
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceNumber(), i, 0);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getItemName(), i, 1);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getItemPrice(), i, 2);
+                            myModel.setValueAt(invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().get(i).getCount(), i, 3);
+                            myModel.setValueAt(Double.parseDouble(myModel.getValueAt(i, 2).toString()) * Double.parseDouble(myModel.getValueAt(i, 3).toString()), i, 4);
+                            sum += Double.parseDouble(myModel.getValueAt(i, 4).toString());
+                        }
+                    }
+                    if (!error) {
+                        gui.getInvoicesHeadersTable().setValueAt(sum, gui.getInvoicesHeadersTable().getSelectedRow(), 3);
+                        gui.setInvoiceItemsModel(myModel);
+                    }
+
+
+
+                    //Setting The Duplicate Array List To Current New One, As Saving The Status Of Project Denies Going Back.
+                    invoiceHeaderArrayListDuplicate.clear();
+                    invoiceHeaderArrayListDuplicate.addAll(invoiceHeaderArrayList);
+                    JOptionPane.showMessageDialog(null, "Please Choose Invoices Header File To Save", "Notice", 1);
+                    JFileChooser fileChooser = new JFileChooser();
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Comma Separated Files", "csv");
+                    fileChooser.setFileFilter(filter);
+                    String path1 = "";
+                    String path2 = "";
+
+                    //Prompt user to select file
+                    int choice = fileChooser.showSaveDialog(null);
+                    if (choice == JFileChooser.APPROVE_OPTION) {
+                        //Store invoice header file to path1
+                        path1 = fileChooser.getSelectedFile().getAbsolutePath();
+
+                        //A Message Dialog To Inform The User To Choose Invoices Lines File To Save To
+                        JOptionPane.showMessageDialog(null, "Please Choose Invoices Lines File To Save", "Notice", 1);
+                        fileChooser = new JFileChooser();
+                        fileChooser.setFileFilter(filter);
+                        choice = fileChooser.showSaveDialog(null);
+                        if (choice == JFileChooser.APPROVE_OPTION) {
+                            path2 = fileChooser.getSelectedFile().getAbsolutePath();
+                            if (invoiceHeaderArrayList != null) {
+                                fileOperations.writeFile(invoiceHeaderArrayList, path1, path2);
+                            }
+
+                        }
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(null, "Please Enter a valid date format!", "Error", 0);
+                }
+
+
+
             }
         }
     }
@@ -326,7 +426,7 @@ public class ActionsHandler {
                 //Apply actions if row is selected, and it is not empty invoice number
                 if (gui.getInvoicesHeadersTable().getSelectedRow() > -1 && !e.getValueIsAdjusting() && !gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 0).equals("")) {
                     DefaultTableModel model = gui.getInvoiceItemsModel();
-                    if (gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 1).equals("")) {
+                    if (gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 3).equals("")) {
                         //If selecting an empty row, show an empty invoice items table to store new data.
                         for (int i = 0; i < model.getRowCount(); i++) {
                             model.setValueAt("", i, 0);
