@@ -1,8 +1,8 @@
 //EGY FWD - Front End Testing Nano Degree Program - Project 1 May Cohort - 2022
 //Program Name : ActionsHandler.java
-//Last Modification Date: 30/05/2022
+//Last Modification Date: 3/06/2022
 //Author: Hossam Ahmed Fouad
-//Version: 3.0
+//Version: 4.0
 //Purpose: Serves The Controller Part In The Model View Control (MVC) Design for SIG
 
 package com.sig.controller;
@@ -269,16 +269,10 @@ public class ActionsHandler {
                 //Clicking Cancel Button - "cancel" command
             } else if (e.getActionCommand().equals("cancel")) {
 
-                //Resetting Invoice Header Table Cells To Original Value
-                for (int i = 0; i < gui.getInvoicesHeadersTable().getRowCount(); i++) {
-                    gui.getInvoicesHeadersTable().setValueAt(invoiceHeaderArrayListDuplicate.get(i).getInvoiceDate(), i, 1);
-                    gui.getInvoicesHeadersTable().setValueAt(invoiceHeaderArrayListDuplicate.get(i).getCustomerName(), i, 2);
-                }
-                //Applying The Duplicate To The Original ArrayList
-                if (invoiceHeaderArrayList != null) {
-                    invoiceHeaderArrayList.clear();
-                    invoiceHeaderArrayList.addAll(invoiceHeaderArrayListDuplicate);
-                }
+                DefaultTableModel model = gui.getInvoiceItemsModel();
+                model.removeRow(gui.getInvoiceItemsTable().getSelectedRow());
+                invoiceHeaderArrayList.get(gui.getInvoicesHeadersTable().getSelectedRow()).getInvoiceLines().remove(gui.getInvoiceItemsTable().getSelectedRow()+1);
+                gui.setInvoiceItemsModel(model);
 
                 //Clicking Add New Item Button - "add" command
             } else if (e.getActionCommand().equals("add")) {
