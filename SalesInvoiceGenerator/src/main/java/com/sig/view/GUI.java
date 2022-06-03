@@ -1,8 +1,8 @@
 //EGY FWD - Front End Testing Nano Degree Program - Project 1 May Cohort - 2022
 //Program Name : GUI.java
-//Last Modification Date: 11/05/2022
+//Last Modification Date: 3/06/2022
 //Author: Hossam Ahmed Fouad
-//Version: 1.0
+//Version: 2.0
 //Purpose: Serves The View Part In The Model View Control (MVC) Design for SIG - Graphical User Interface
 
 package com.sig.view;
@@ -250,7 +250,7 @@ public class GUI extends JFrame {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER,60,0));
         saveBtn = new JButton("Save");
-        cancelBtn = new JButton("Cancel");
+        cancelBtn = new JButton("Delete Invoice Item");
         addItemBtn = new JButton("Add New Item");
         buttonsPanel.add(addItemBtn);
         buttonsPanel.add(saveBtn);
