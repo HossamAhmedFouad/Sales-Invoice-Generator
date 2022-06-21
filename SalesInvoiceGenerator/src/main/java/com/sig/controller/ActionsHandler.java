@@ -1,8 +1,8 @@
 //EGY FWD - Front End Testing Nano Degree Program - Project 1 May Cohort - 2022
 //Program Name : ActionsHandler.java
-//Last Modification Date: 3/06/2022
+//Last Modification Date: 21/06/2022
 //Author: Hossam Ahmed Fouad
-//Version: 4.0
+//Version: 5.0
 //Purpose: Serves The Controller Part In The Model View Control (MVC) Design for SIG
 
 package com.sig.controller;
@@ -16,6 +16,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
@@ -114,7 +115,7 @@ public class ActionsHandler {
             //Clicking On Create New Invoice Button - "create" command
             if (e.getActionCommand().equals("create")) {
                 //Getting the model of current invoice header table
-                DefaultTableModel myModel = gui.getInvoicesTableModel();
+                final DefaultTableModel myModel = gui.getInvoicesTableModel();
 
                 //On creating a new invoice, the number of new invoice is the increment of the previous
                 //invoice number by one
@@ -126,18 +127,61 @@ public class ActionsHandler {
                 }else{
                     invoiceHeaderArrayList = new ArrayList<>(0);
                 }
+                final JFrame frame1 = new JFrame();
+                frame1.setSize(300,300);
+                frame1.setLocation(500,200);
+                frame1.setVisible(true);
+                JPanel mypanel = new JPanel();
+                mypanel.setLayout(new GridLayout(3,1));
+                JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,30,10));
+                JPanel customernamePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,10,10));
+                JPanel confirmPanel = new JPanel();
+                mypanel.add(datePanel);
+                mypanel.add(customernamePanel);
+                mypanel.add(confirmPanel);
+                JLabel datelbl = new JLabel("Date");
+                datePanel.add(datelbl);
+                final JTextField date = new JTextField();
+                date.setPreferredSize(new Dimension(100,20));
+                datePanel.add(date);
+                JLabel customerLbl = new JLabel("Customer");
+                customernamePanel.add(customerLbl);
+                final JTextField customerName = new JTextField();
+                customerName.setPreferredSize(new Dimension(100,20));
+                customernamePanel.add(customerName);
+                JButton confirm = new JButton("Create");
+                confirm.setActionCommand("confirm");
+                confirmPanel.add(confirm);
+                frame1.add(mypanel);
+                final boolean[] clicked = {false};
+                final int finalPreviousInvoiceNumber = previousInvoiceNumber;
+                confirm.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if(e.getActionCommand().equals("confirm")) {
+                            if (!date.getText().equals("") && !customerName.getText().equals("") && e.getActionCommand().equals("confirm")) {
+                                gui.getInvoicesTableModel().addRow(new Object[]{finalPreviousInvoiceNumber + 1, date.getText(), customerName.getText(), ""});
+
+                                //Creating new invoice header object to hold data of the new added invoice
+                                InvoiceHeader header = new InvoiceHeader();
+
+                                //Setting the invoice number value of the currently newly created header object
+                                header.setInvoiceNumber(String.valueOf(finalPreviousInvoiceNumber + 1));
+                                invoiceHeaderArrayList.add(header);
+
+                                //Setting the modified model to the invoice header table
+                                gui.setInvoicesTableModel(myModel);
+                                frame1.dispose();
+                            }
+                        }
+
+
+                    }
+                });
+
+
                 //Adding new row to the current invoice header table model with No. column value set with incremented invoice number
-                myModel.addRow(new Object[]{previousInvoiceNumber + 1, "", "", ""});
 
-                //Creating new invoice header object to hold data of the new added invoice
-                InvoiceHeader header = new InvoiceHeader();
-
-                //Setting the invoice number value of the currently newly created header object
-                header.setInvoiceNumber(String.valueOf(previousInvoiceNumber + 1));
-                invoiceHeaderArrayList.add(header);
-
-                //Setting the modified model to the invoice header table
-                gui.setInvoicesTableModel(myModel);
 
                 //Clicking On Delete Invoice Button - "delete" command
             } else if (e.getActionCommand().equals("delete")) {
@@ -277,10 +321,56 @@ public class ActionsHandler {
                 //Clicking Add New Item Button - "add" command
             } else if (e.getActionCommand().equals("add")) {
 
+                final JFrame frame = new JFrame();
+                frame.setSize(300,300);
+                frame.setLocation(500,200);
+                frame.setVisible(true);
+                JPanel mypanel = new JPanel();
+                mypanel.setLayout(new GridLayout(3,1));
+                JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,30,10));
+                JPanel customernamePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,10,10));
+                JPanel confirmPanel = new JPanel();
+                JPanel count = new JPanel(new FlowLayout(FlowLayout.CENTER,30,10));
+                mypanel.add(datePanel);
+                mypanel.add(customernamePanel);
+                mypanel.add(count);
+                mypanel.add(confirmPanel);
+                JLabel datelbl = new JLabel("Item name");
+                datePanel.add(datelbl);
+                final JTextField date = new JTextField();
+                date.setPreferredSize(new Dimension(100,20));
+                datePanel.add(date);
+                JLabel customerLbl = new JLabel("Item price");
+                customernamePanel.add(customerLbl);
+                final JTextField customerName = new JTextField();
+                customerName.setPreferredSize(new Dimension(100,20));
+                customernamePanel.add(customerName);
+                JLabel countlbl = new JLabel("Count");
+                count.add(countlbl);
+                final JTextField countfield = new JTextField();
+                countfield.setPreferredSize(new Dimension(100,20));
+                count.add(countfield);
+                JButton confirm2 = new JButton("Add");
+                confirm2.setActionCommand("confirm2");
+                confirmPanel.add(confirm2);
+                frame.add(mypanel);
+                boolean[] clicked = {false};
+                confirm2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if(e.getActionCommand().equals("confirm2")) {
+                            DefaultTableModel model = gui.getInvoiceItemsModel();
+                            if (!date.getText().equals("") && !customerName.getText().equals("") && !countfield.getText().equals("") && e.getActionCommand().equals("confirm2")) {
+                                model.addRow(new Object[]{"", date.getText(), customerName.getText(), countfield.getText(), ""});
+
+                                frame.dispose();
+                            }
+                        }
+                    }
+                });
+
                 //Add new empty row to the invoice items  model
-                DefaultTableModel model = gui.getInvoiceItemsModel();
-                model.addRow(new Object[]{"", "", "", "", ""});
-                gui.setInvoiceItemsModel(model);
+
 
                 //Clicking Load File From File Menu - "loadFile" command
             } else if (e.getActionCommand().equals("loadFile")) {
@@ -420,6 +510,7 @@ public class ActionsHandler {
                 //Apply actions if row is selected, and it is not empty invoice number
                 if (gui.getInvoicesHeadersTable().getSelectedRow() > -1 && !e.getValueIsAdjusting() && !gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 0).equals("")) {
                     DefaultTableModel model = gui.getInvoiceItemsModel();
+                    while (model.getRowCount()>0){model.removeRow(0);}
                     if (gui.getInvoicesHeadersTable().getValueAt(gui.getInvoicesHeadersTable().getSelectedRow(), 3).equals("")) {
                         //If selecting an empty row, show an empty invoice items table to store new data.
                         for (int i = 0; i < model.getRowCount(); i++) {
