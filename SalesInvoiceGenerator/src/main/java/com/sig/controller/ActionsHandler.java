@@ -1,8 +1,8 @@
 //EGY FWD - Front End Testing Nano Degree Program - Project 1 May Cohort - 2022
 //Program Name : ActionsHandler.java
-//Last Modification Date: 21/06/2022
+//Last Modification Date: 22/06/2022
 //Author: Hossam Ahmed Fouad
-//Version: 5.0
+//Version: 6.0
 //Purpose: Serves The Controller Part In The Model View Control (MVC) Design for SIG
 
 package com.sig.controller;
@@ -62,12 +62,13 @@ public class ActionsHandler {
                 data[i][1] = invoiceHeaderArrayList.get(i).getInvoiceDate();
                 data[i][2] = invoiceHeaderArrayList.get(i).getCustomerName();
                 StringBuilder str;
-
-                for (InvoiceLine line : invoiceHeaderArrayList.get(i).getInvoiceLines()) {
-                    str = new StringBuilder(line.getCount());
-                    sum += Double.parseDouble(str.toString()) * Double.parseDouble(line.getItemPrice());
+                if (invoiceHeaderArrayList.get(i).getInvoiceLines()!= null) {
+                    for (InvoiceLine line : invoiceHeaderArrayList.get(i).getInvoiceLines()) {
+                        str = new StringBuilder(line.getCount());
+                        sum += Double.parseDouble(str.toString()) * Double.parseDouble(line.getItemPrice());
+                    }
+                    data[i][3] = Double.toString(sum);
                 }
-                data[i][3] = Double.toString(sum);
             }
             DefaultTableModel myModel = gui.getInvoicesTableModel();
 
